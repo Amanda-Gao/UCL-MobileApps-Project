@@ -7,7 +7,7 @@ import 'package:pet_path/value/route_app.dart';
 
 void main() {
   final statusStyle = SystemUiOverlayStyle(
-      statusBarColor: ColorApp.primary,
+      statusBarColor: Color(0xFF323232),
       statusBarIconBrightness: Brightness.light
   );
 

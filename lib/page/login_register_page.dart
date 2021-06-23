@@ -7,6 +7,8 @@ import 'package:pet_path/app_config.dart';
 import 'package:pet_path/value/color_app.dart';
 import 'package:pet_path/value/img_app.dart';
 
+import 'home_page.dart';
+
 class LoginRegisterPage extends StatefulWidget{
 
   final bool isRegister;
@@ -174,11 +176,11 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>{
     });
 
     if(body['status'] == true){
-      /*AppConfig.userNameLogged = login;
+      //AppConfig.userNameLogged = login;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage(userName: login)),
-      );*/
+      );
     }
     else{
       _showMyDialog("Login", body['message']);
