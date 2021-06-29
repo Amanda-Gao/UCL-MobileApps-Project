@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pet_path/page/login_register_page.dart';
 import 'package:pet_path/page/splash_page.dart';
-import 'package:pet_path/value/color_app.dart';
 import 'package:pet_path/value/route_app.dart';
 
 void main() {
   final statusStyle = SystemUiOverlayStyle(
-      statusBarColor: Color(0xFF323232),
+      statusBarColor: Color(0xFF292929),
       statusBarIconBrightness: Brightness.light
   );
 

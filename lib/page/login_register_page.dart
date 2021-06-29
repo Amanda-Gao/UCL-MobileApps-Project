@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:pet_path/app_config.dart';
 import 'package:pet_path/value/color_app.dart';
 import 'package:pet_path/value/img_app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'home_page.dart';
 
@@ -60,9 +61,13 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>{
   }
 
   @override
+  void initState() {
+    _getLastLogin();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: ColorApp.primary,
@@ -116,13 +121,14 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>{
                   margin: EdgeInsets.only(top: 20.0),
                   child:             TextButton(
                     onPressed: (){
-                      setState(() {
-                        isLoading = true;
-                      });
                       if(loginEc.text.trim().isEmpty || passwordEc.text.trim().isEmpty) {
                         _showMyDialog("Aviso", "Alguns dados estão em brancos");
                       }
                       else {
+                        setState(() {
+                          isLoading = true;
+                        });
+
                         if(isRegister){
                           register();
                         }
@@ -176,7 +182,9 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>{
     });
 
     if(body['status'] == true){
-      //AppConfig.userNameLogged = login;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('user_logged', login);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage(userName: login)),
@@ -185,6 +193,12 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>{
     else{
       _showMyDialog("Login", body['message']);
     }
+  }
+
+  _getLastLogin() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    loginEc.text = prefs.getString('user_logged');
   }
 
   register() async {

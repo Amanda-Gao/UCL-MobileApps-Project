@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pet_path/page/info_page.dart';
 import 'package:pet_path/value/color_app.dart';
 import 'package:pet_path/value/img_app.dart';
-import 'package:http/http.dart' as http;
-import '../app_config.dart';
+import 'package:pet_path/widget/item.dart';
 
 class HomePage extends StatefulWidget{
 
@@ -44,56 +43,60 @@ class _HomePageState extends State<HomePage>{
 
   @override
   void initState() {
-    //getPosts();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    double statusBarHeight = MediaQuery.of(context).padding.top;
+
     return Scaffold(
         key: scaffoldState,
         resizeToAvoidBottomInset: false,
         backgroundColor: ColorApp.primary,
         body:
         Container(
-          padding: EdgeInsets.only(top: 24.0),
+          padding: EdgeInsets.only(top: statusBarHeight),
           child:  Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: EdgeInsets.only(bottom: 20),
                 color: Color(0xFF323232),
-                height: 60,
+                padding: EdgeInsets.all(15),
                 child: Row(
                   children: [
                     Image.asset(ImgApp.logo, height: 40),
-                    Text("Pet Path", style: TextStyle(color: ColorApp.white[54], fontSize: 12))
+                    SizedBox(width: 10),
+                    Expanded(child: Text("Pet Path", style: TextStyle(color: Colors.white, fontSize: 16))),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        customBorder: new CircleBorder(),
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          child: Icon(Icons.info, color: Colors.white),
+                        ),
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => InfoPage()),
+                          );
+                        },
+                      ),
+                    )
                   ],
                 ),
               ),
               Expanded(
-                child: /*posts != null && posts.length > 0 ? RefreshIndicator(
-                  onRefresh: () {},
-                  child: */GridView.count(
-                  // Cria um grid com duas colunas
+                child: GridView.count(
                   crossAxisCount: 2,
-                  // Gera 100 Widgets que exibem o seu índice
+
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   padding: EdgeInsets.zero,
 
                   children: List.generate(10, (index) {
-                    return Card(
-                        semanticContainer: true,
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      elevation: 10,
-                      child: Center(
-                        child: Image.asset(ImgApp.dog,),
-                      ),
-                    );
+                    return Item(img: Image.asset(ImgApp.dog), check: true);
                   }),
                 ) /*: Center(child: posts == null ? SizedBox(width: 50, height: 50, child: CircularProgressIndicator()) : Container(child: Text("Nenhuma postagem encontrada!", style: TextStyle(fontSize: 18, color: ColorApp.white[26])))),*/
               )
@@ -140,35 +143,6 @@ class _HomePageState extends State<HomePage>{
     });
   }
 
-  /*Future postImage(base64, feeling) async {
-    var url = Uri.parse('${AppConfig.url}post');
-    var response = await http.post(url, headers: {"Content-Type": "application/json"}, body:  json.encode({'user': userName, 'image64': base64, 'feeling': feeling}));
-    var body = json.decode(response.body);
-
-    await getPosts();
-  }*/
-
-  /*Future getPosts() async {
-    var url = Uri.parse('${AppConfig.url}feed');
-    var response = await http.get(url, headers: {"Content-Type": "application/json"});
-    //print(response.body.toString());
-    List body = json.decode(response.body);
-    posts = [];
-    setState(() {
-      for(var post in body){
-        var format = new DateTime.fromMillisecondsSinceEpoch(post['timestamp'], isUtc: true);
-        posts.add(new FeedItem(
-          postId: post['id'],
-          userName: post["user"],
-          dateTime: format.toIso8601String(),
-          image64: base64Decode(post["image64"]),
-          feeling: post["feeling"],
-          majority: post["majority_feeling"],
-        ));
-      }
-    });
-  }*/
-
   void _uploadImage(context, base64){
     final width = MediaQuery.of(context).size.width * 0.3;
 
@@ -176,6 +150,7 @@ class _HomePageState extends State<HomePage>{
     happy = true;
     _controller = scaffoldState.currentState.showBottomSheet(
         BottomSheet(
+          elevation: 12,
             onClosing: (){},
             builder: (BuildContext context){
               return Container(
@@ -258,17 +233,6 @@ class _HomePageState extends State<HomePage>{
                         !isUploading ?
                         FloatingActionButton(
                           onPressed: () {
-                            /*if(!isUploading){
-                              _controller.setState(() {
-                                isUploading = true;
-                              });
-                              postImage(base64, happy ? 1 : 2).then((_){
-                                _controller.setState(() {
-                                  isUploading = false;
-                                });
-                                _controller.close();
-                              });
-                            }*/
                             _controller.close();
                           },
                           child: const Icon(Icons.send, color: Color(0xFF323232)),
