@@ -19,15 +19,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Pet Path',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.grey
-        ),
-        home: SplashPage(),
-        routes: <String, WidgetBuilder>{
-          RouteApp.login: (BuildContext context) => LoginRegisterPage(),
-        },
+      title: 'Pet Path',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.grey
+      ),
+      home: SplashPage(),
+      routes: <String, WidgetBuilder>{
+        RouteApp.login: (BuildContext context) => LoginRegisterPage(),
+      }
     );
   }
 }

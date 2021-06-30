@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_path/app_config.dart';
 import 'package:pet_path/page/pet_page.dart';
-import 'package:pet_path/value/img_app.dart';
 import 'package:http/http.dart' as http;
 
 class Item extends StatefulWidget{
