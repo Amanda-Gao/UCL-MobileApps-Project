@@ -185,6 +185,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage>{
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       await prefs.setString('user_logged', login);
+      AppConfig.user = login;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage(userName: login)),

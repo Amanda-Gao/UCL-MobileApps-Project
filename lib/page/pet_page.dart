@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pet_path/value/img_app.dart';
 
 class PetPage extends StatefulWidget{
 
@@ -54,6 +53,8 @@ class _PetPageState extends State<PetPage>{
                   ],
                 ),
                 SizedBox(height: 20),
+                Text(widget.description),
+                Text(widget.location)
               ],
             ),
           ),

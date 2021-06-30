@@ -1,12 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:pet_path/page/info_page.dart';
 import 'package:pet_path/value/color_app.dart';
 import 'package:pet_path/value/img_app.dart';
 import 'package:pet_path/widget/item.dart';
+import '../app_config.dart';
 
 class HomePage extends StatefulWidget{
 
@@ -29,7 +31,7 @@ class _HomePageState extends State<HomePage>{
   var happy = false;
   var sad = false;
   PersistentBottomSheetController _controller;
-  List<String> posts;
+  List<Item> posts;
   var isUploading = false;
   var refreshKey = GlobalKey<RefreshIndicatorState>();
 
@@ -43,6 +45,7 @@ class _HomePageState extends State<HomePage>{
 
   @override
   void initState() {
+    getPosts();
     super.initState();
   }
 
@@ -88,17 +91,25 @@ class _HomePageState extends State<HomePage>{
                 ),
               ),
               Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  padding: EdgeInsets.zero,
-
-                  children: List.generate(10, (index) {
-                    return Item(img: Image.asset(ImgApp.dog), check: true);
-                  }),
-                ) /*: Center(child: posts == null ? SizedBox(width: 50, height: 50, child: CircularProgressIndicator()) : Container(child: Text("Nenhuma postagem encontrada!", style: TextStyle(fontSize: 18, color: ColorApp.white[26])))),*/
+                child: RefreshIndicator(
+                  onRefresh: getPosts,
+                  child: posts != null ? GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    padding: EdgeInsets.zero,
+                    children: List.generate(posts.length > 0 ? posts.length : 1, (index) {
+                      return posts.length > 0 ? posts[index] : Container(
+                        padding: EdgeInsets.only(top: 20),
+                          child: Text(
+                              "Nenhum animal encontrado!",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 18, color: ColorApp.black[26])
+                          )
+                      );
+                    }),
+                  ) : Center(child: SizedBox(width: 50, height: 50, child: CircularProgressIndicator())),
+                )
               )
             ],
           ),
@@ -114,6 +125,27 @@ class _HomePageState extends State<HomePage>{
           backgroundColor: Color(0xFF323232),
         )
     );
+  }
+
+  Future getPosts() async {
+    var url = Uri.parse('${AppConfig.url}feed');
+    var response = await http.get(url, headers: {"Content-Type": "application/json"});
+
+    List body = json.decode(response.body);
+    posts = [];
+    setState(() {
+      for(var post in body){
+        posts.add(new Item(id: post["id"], img: Image.memory(base64Decode(post["image"]), fit: BoxFit.cover), user: post["user"], check: post["checked"] == 1 ? true : false, animalName: post['animal_name'], description: post['description'], location: post['location']));
+      }
+    });
+  }
+
+  Future postImage(base64) async {
+    var url = Uri.parse('${AppConfig.url}post');
+    var response = await http.post(url, headers: {"Content-Type": "application/json"}, body:  json.encode({'user': AppConfig.user, 'image': base64, 'animal_name': c1.text, 'description': c2.text, 'location': c3.text, 'timestamp': DateTime.now().millisecondsSinceEpoch}));
+    var body = json.decode(response.body);
+
+    await getPosts();
   }
 
   Future getImage() async {
@@ -189,7 +221,6 @@ class _HomePageState extends State<HomePage>{
                       style: TextStyle(
                         color: Colors.black,
                       ),
-                      obscureText: true,
                       decoration: InputDecoration(
                           hintStyle: TextStyle(color: ColorApp.black[26]),
                           border: OutlineInputBorder(),
@@ -203,7 +234,6 @@ class _HomePageState extends State<HomePage>{
                       style: TextStyle(
                         color: Colors.black,
                       ),
-                      obscureText: true,
                       decoration: InputDecoration(
                           hintStyle: TextStyle(color: ColorApp.black[26]),
                           border: OutlineInputBorder(),
@@ -217,7 +247,6 @@ class _HomePageState extends State<HomePage>{
                       style: TextStyle(
                         color: Colors.black,
                       ),
-                      obscureText: true,
                       decoration: InputDecoration(
                           hintStyle: TextStyle(color: ColorApp.black[26]),
                           border: OutlineInputBorder(),
@@ -233,7 +262,17 @@ class _HomePageState extends State<HomePage>{
                         !isUploading ?
                         FloatingActionButton(
                           onPressed: () {
-                            _controller.close();
+                            if(!isUploading){
+                              _controller.setState(() {
+                                isUploading = true;
+                              });
+                              postImage(base64).then((_){
+                                _controller.setState(() {
+                                  isUploading = false;
+                                });
+                                _controller.close();
+                              });
+                            }
                           },
                           child: const Icon(Icons.send, color: Color(0xFF323232)),
                           backgroundColor: Colors.white,
